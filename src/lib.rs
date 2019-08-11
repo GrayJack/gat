@@ -1,14 +1,13 @@
 pub mod functors;
 pub mod hkt;
 
-use std::hash::Hash;
 pub use crate::{
     functors::Functor,
     hkt::{Bind, Rebind},
 };
 
 // Implementations
-use std::collections::{LinkedList, BTreeSet};
+use std::collections::LinkedList;
 
 impl<T> Bind for Option<T> {
     type F = Option<T>;

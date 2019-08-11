@@ -1,7 +1,9 @@
 #[cfg(test)]
 mod tests {
     use std::collections::LinkedList;
+
     use gat::*;
+    use sugars::lkl;
 
     #[test]
     fn optional_id() {
@@ -93,33 +95,33 @@ mod tests {
         assert_eq!(vec![0_u32, 1, 2, 3], test2.fmap(u32::from));
     }
 
-    // #[test]
-    // fn linked_list_id() {
-    //     let id = |x| x;
-    //     let test1 = LinkedList::new();
-    //     let test2 = ;
-    //
-    //     assert!(test1.fmap(id).is_empty());
-    //     assert_eq!( , test2.fmap(id));
-    // }
-    //
-    // #[test]
-    // fn linked_list_compose() {
-    //     let f1 = |x| x + 2;
-    //     let f2 = |x| x * 2;
-    //     let test1 = LinkedList::new();
-    //     let test2 = vec![0_u16, 1, 2, 3];
-    //
-    //     assert!(test1.fmap(|x| f1(f2(x))).is_empty());
-    //     assert_eq!(vec![2, 4, 6, 8], test2.fmap(|x| f1(f2(x))));
-    // }
-    //
-    // #[test]
-    // fn linked_list_other() {
-    //     let test1: Vec<u16> = vec![];
-    //     let test2 = vec![0_u16, 1, 2, 3];
-    //
-    //     assert!(test1.fmap(u32::from).is_empty());
-    //     assert_eq!(vec![0_u32, 1, 2, 3], test2.fmap(u32::from));
-    // }
+    #[test]
+    fn linked_list_id() {
+        let id = |x| x;
+        let test1 = LinkedList::new();
+        let test2 = lkl![0_u16, 1, 2, 3];
+
+        assert!(test1.fmap(id).is_empty());
+        assert_eq!(lkl![0_u16, 1, 2, 3], test2.fmap(id));
+    }
+
+    #[test]
+    fn linked_list_compose() {
+        let f1 = |x| x + 2;
+        let f2 = |x| x * 2;
+        let test1 = LinkedList::new();
+        let test2 = lkl![0_u16, 1, 2, 3];
+
+        assert!(test1.fmap(|x| f1(f2(x))).is_empty());
+        assert_eq!(lkl![2, 4, 6, 8], test2.fmap(|x| f1(f2(x))));
+    }
+
+    #[test]
+    fn linked_list_other() {
+        let test1: LinkedList<u16> = lkl![];
+        let test2 = lkl![0_u16, 1, 2, 3];
+
+        assert!(test1.fmap(u32::from).is_empty());
+        assert_eq!(lkl![0_u32, 1, 2, 3], test2.fmap(u32::from));
+    }
 }
