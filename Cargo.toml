@@ -17,6 +17,12 @@ edition = "2018"
 travis-ci = { repository = "GrayJack/gat" }
 maintenance = { status = "actively-developed" }
 
+[[test]]
+name = "tests"
+path = "tests/tests.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[dev-dependencies]
