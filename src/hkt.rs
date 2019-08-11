@@ -16,6 +16,15 @@ impl<T> Bind for Option<T> {
     type A = T;
 }
 
-impl<A, B> Rebind<A> for Option<B>  {
+impl<A, B> Rebind<A> for Option<B> {
     type Res = Option<A>;
+}
+
+impl<T, E> Bind for Result<T, E> {
+    type F = Result<T, E>;
+    type A = T;
+}
+
+impl<T, E, A> Rebind<A> for Result<T, E> {
+    type Res = Result<A, E>;
 }

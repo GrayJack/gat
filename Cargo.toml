@@ -1,0 +1,22 @@
+[package]
+name = "gat"
+version = "0.1.0"
+authors = ["GrayJack <gr41.j4ck@gmail.com>"]
+readme = "README.md"
+license-file = "LICENSE"
+repository = "https://github.com/GrayJack/gat"
+documentation = "https://docs.rs/gat"
+homepage = "https://crates.io/crates/gat"
+description = "Implementation of Generic Associated Types and Functional traits"
+categories = ["rust-patterns", "functional"]
+keywords = ["Generic Associated Types", "Higher Kinded Functions", "macro"]
+# exclude = ["/.travis.yml"]
+edition = "2018"
+
+[badges]
+travis-ci = { repository = "GrayJack/gat" }
+maintenance = { status = "actively-developed" }
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
