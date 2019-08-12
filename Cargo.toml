@@ -10,7 +10,7 @@ homepage = "https://crates.io/crates/gat"
 description = "Implementation of Generic Associated Types and Functional traits"
 categories = ["rust-patterns", "functional"]
 keywords = ["Generic Associated Types", "Higher Kinded Functions", "macro"]
-# exclude = ["/.travis.yml"]
+exclude = ["/.travis.yml"]
 edition = "2018"
 
 [badges]
