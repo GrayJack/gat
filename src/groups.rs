@@ -20,6 +20,7 @@ pub trait Monoid: Sized {
     fn associate(self, other: &Self) -> Self;
 
     /// A function that folds over using the `associate`function and the `identity_value`
+    #[inline]
     fn mfold(xs: &[Self]) -> Self {
         xs.iter().fold(Self::identity_value(), Self::associate)
     }
