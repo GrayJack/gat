@@ -9,4 +9,5 @@ pub trait Rebind<A> {
 pub trait Bind {
     type F;
     type A;
+    type B;
 }
