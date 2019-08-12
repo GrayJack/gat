@@ -13,11 +13,14 @@ use std::{cmp::Ordering, collections::LinkedList};
 
 // Group Monoids
 impl Monoid for () {
+    #[inline]
     fn identity_value() -> Self {}
+    #[inline]
     fn associate(self, _other: &Self) -> Self {}
 }
 
 impl Monoid for Ordering {
+    #[inline]
     fn identity_value() -> Self {
         Ordering::Equal
     }
@@ -83,6 +86,7 @@ impl<A, B> Rebind<A> for Option<B> {
 impl<T> Functor for Option<T> {
     type Item = T;
 
+    #[inline]
     fn fmap<B, F: FnMut(Self::Item) -> B>(self, mut f: F) -> <Self as Rebind<B>>::Res {
         match self {
             Some(value) => Some(f(value)),
@@ -104,6 +108,7 @@ impl<T, E, A> Rebind<A> for Result<T, E> {
 impl<T, E> Functor for Result<T, E> {
     type Item = T;
 
+    #[inline]
     fn fmap<B, F: FnMut(Self::Item) -> B>(self, mut f: F) -> <Self as Rebind<B>>::Res {
         match self {
             Ok(value) => Ok(f(value)),
@@ -125,6 +130,7 @@ impl<A, T> Rebind<A> for Vec<T> {
 impl<T> Functor for Vec<T> {
     type Item = T;
 
+    #[inline]
     fn fmap<B, F: FnMut(Self::Item) -> B>(self, f: F) -> <Self as Rebind<B>>::Res {
         self.into_iter().map(f).collect()
     }
@@ -143,6 +149,7 @@ impl<A, T> Rebind<A> for LinkedList<T> {
 impl<T> Functor for LinkedList<T> {
     type Item = T;
 
+    #[inline]
     fn fmap<B, F: FnMut(Self::Item) -> B>(self, f: F) -> <Self as Rebind<B>>::Res {
         self.into_iter().map(f).collect()
     }
