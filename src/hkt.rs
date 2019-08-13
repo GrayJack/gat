@@ -7,7 +7,6 @@ pub trait Rebind<A> {
 
 /// Implement to be able to maintain a a bind of type
 pub trait Bind {
-    type F;
-    type A;
-    type B;
+    type Type1;
+    type Type2;
 }

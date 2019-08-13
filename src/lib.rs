@@ -74,9 +74,8 @@ impl<T: Clone> Monoid for LinkedList<T> {
 
 // Functor Applicative and Monad
 impl<T> Bind for Option<T> {
-    type F = Option<T>;
-    type A = T;
-    type B = ();
+    type Type1 = T;
+    type Type2 = ();
 }
 
 impl<A, B> Rebind<A> for Option<B> {
@@ -96,9 +95,8 @@ impl<T> Functor for Option<T> {
 }
 
 impl<T, E> Bind for Result<T, E> {
-    type F = Result<T, E>;
-    type A = T;
-    type B = E;
+    type Type1 = T;
+    type Type2 = E;
 }
 
 impl<T, E, A> Rebind<A> for Result<T, E> {
@@ -118,9 +116,8 @@ impl<T, E> Functor for Result<T, E> {
 }
 
 impl<T> Bind for Vec<T> {
-    type F = Vec<T>;
-    type A = T;
-    type B = ();
+    type Type1 = T;
+    type Type2 = ();
 }
 
 impl<A, T> Rebind<A> for Vec<T> {
@@ -137,9 +134,8 @@ impl<T> Functor for Vec<T> {
 }
 
 impl<T> Bind for LinkedList<T> {
-    type F = LinkedList<T>;
-    type A = T;
-    type B = ();
+    type Type1 = T;
+    type Type2 = ();
 }
 
 impl<A, T> Rebind<A> for LinkedList<T> {
