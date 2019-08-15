@@ -97,11 +97,11 @@ impl<T> Applicative for Option<T> {
         Some(s)
     }
 
-    fn lift<B, F>(self, f: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    fn lift<B, F>(self, fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
     where
         F: FnMut(Self::Type1) -> B
     {
-        match f {
+        match fs {
             Some(func) => self.fmap(func),
             None => None,
         }
@@ -142,6 +142,20 @@ impl<T> Functor for Vec<T> {
     #[inline]
     fn fmap<B, F: FnMut(Self::Type1) -> B>(self, f: F) -> <Self as Rebind<B>>::Res {
         self.into_iter().map(f).collect()
+    }
+}
+
+impl<T: Clone> Applicative for Vec<T> {
+    fn pure(value: Self::Type1) -> Self {
+        vec![value]
+    }
+
+    fn lift<B, F>(self, mut fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    where
+        F: FnMut(Self::Type1) -> B
+    {
+        use sugars::cvec;
+        cvec![f(x); f <- &mut fs, x <- self.clone()]
     }
 }
 

@@ -30,8 +30,8 @@ pub trait Applicative: Functor {
     /// return that implementator type holding it
     fn pure(value: Self::Type1) -> Self;
 
-    /// Lift `self` using a function `f`
-    fn lift<B, F>(self, f: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    /// Lift `self` using a function wrapped in a Functor `fs`
+    fn lift<B, F>(self, fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
     where
         F: FnMut(Self::Type1) -> B,
         Self: Rebind<F> + Rebind<B> + Bind,
