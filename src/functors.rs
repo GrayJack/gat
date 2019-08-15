@@ -1,4 +1,4 @@
-use crate::hkt::{Bind, Rebind};
+use crate::{rebd, hkt::{Bind, Rebind}};
 
 /// This trait is used for types that can be mapped over.
 ///
@@ -10,7 +10,7 @@ use crate::hkt::{Bind, Rebind};
 pub trait Functor: Bind + Rebind<<Self as Bind>::Type1> {
     /// Creates a a new `Functor` of type `B` from a `Functor` of type `Self` using
     /// the results of calling a function `f` on every value in `Functor` of type `Self`
-    fn fmap<B, F>(self, f: F) -> <Self as Rebind<B>>::Res
+    fn fmap<B, F>(self, f: F) -> rebd!(Self => B)
     where
         Self: Rebind<B>,
         F: FnMut(Self::Type1) -> B;
@@ -31,7 +31,7 @@ pub trait Applicative: Functor {
     fn pure(value: Self::Type1) -> Self;
 
     /// Lift `self` using a function wrapped in a Functor `fs`
-    fn lift<B, F>(self, fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
     where
         F: FnMut(Self::Type1) -> B,
         Self: Rebind<F> + Rebind<B> + Bind,

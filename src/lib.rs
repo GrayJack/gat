@@ -8,6 +8,14 @@ pub use crate::{
     groups::Monoid,
 };
 
+/// Convenience macro to write **almost** idiomatic Rust for `Rebind` for a type
+#[macro_export]
+macro_rules! rebd {
+    ($t1:ty => $t2:ty) => {
+        <$t1 as Rebind<$t2>>::Res
+    };
+}
+
 // Implementations
 use std::{cmp::Ordering, collections::LinkedList};
 
@@ -85,7 +93,10 @@ impl<A, B> Rebind<A> for Option<B> {
 }
 
 impl<T> Functor for Option<T> {
-    fn fmap<B, F: FnMut(Self::Type1) -> B>(self, mut f: F) -> <Self as Rebind<B>>::Res {
+    fn fmap<B, F>(self, mut f: F) -> rebd!(Self => B)
+    where
+        F: FnMut(Self::Type1) -> B
+    {
         match self {
             Some(value) => Some(f(value)),
             None => None,
@@ -100,7 +111,7 @@ impl<T> Applicative for Option<T> {
     }
 
     #[inline]
-    fn lift<B, F>(self, fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
     where
         F: FnMut(Self::Type1) -> B
     {
@@ -123,7 +134,10 @@ impl<T, E, A> Rebind<A> for Result<T, E> {
 
 impl<T, E> Functor for Result<T, E> {
     #[inline]
-    fn fmap<B, F: FnMut(Self::Type1) -> B>(self, mut f: F) -> <Self as Rebind<B>>::Res {
+    fn fmap<B, F>(self, mut f: F) -> rebd!(Self => B)
+    where
+        F: FnMut(Self::Type1) -> B
+    {
         match self {
             Ok(value) => Ok(f(value)),
             Err(err) => Err(err),
@@ -138,7 +152,7 @@ impl<T, E> Applicative for Result<T, E> {
     }
 
     #[inline]
-    fn lift<B, F>(self, fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
     where
         F: FnMut(Self::Type1) -> B
     {
@@ -161,7 +175,10 @@ impl<A, T> Rebind<A> for Vec<T> {
 
 impl<T> Functor for Vec<T> {
     #[inline]
-    fn fmap<B, F: FnMut(Self::Type1) -> B>(self, f: F) -> <Self as Rebind<B>>::Res {
+    fn fmap<B, F>(self, f: F) -> rebd!(Self => B)
+    where
+        F: FnMut(Self::Type1) -> B
+    {
         self.into_iter().map(f).collect()
     }
 }
@@ -172,7 +189,7 @@ impl<T: Clone> Applicative for Vec<T> {
         vec![value]
     }
 
-    fn lift<B, F>(self, mut fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    fn lift<B, F>(self, mut fs: rebd!(Self => F)) -> rebd!(Self => B)
     where
         F: FnMut(Self::Type1) -> B
     {
@@ -193,7 +210,10 @@ impl<A, T> Rebind<A> for LinkedList<T> {
 
 impl<T> Functor for LinkedList<T> {
     #[inline]
-    fn fmap<B, F: FnMut(Self::Type1) -> B>(self, f: F) -> <Self as Rebind<B>>::Res {
+    fn fmap<B, F>(self, f: F) -> rebd!(Self => B)
+    where
+        F: FnMut(Self::Type1) -> B
+    {
         self.into_iter().map(f).collect()
     }
 }
@@ -205,7 +225,7 @@ impl<T: Clone> Applicative for LinkedList<T> {
         lkl![value]
     }
 
-    fn lift<B, F>(self, fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
     where
         F: FnMut(Self::Type1) -> B
     {
