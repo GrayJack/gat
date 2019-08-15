@@ -35,7 +35,7 @@ pub trait Applicative: Functor {
     where
         F: FnMut(Self::Type1) -> B,
         Self: Rebind<F> + Rebind<B> + Bind,
-        <Self as Rebind<F>>::Res: Bind<Orig=Self::Orig,Type1=F,Type2=()> +
+        <Self as Rebind<F>>::Res: Bind<Orig=Self::Orig,Type1=F> +
             Rebind<F>,
         Self::Orig: Rebind<F>;
 }

@@ -19,6 +19,25 @@ fn option_lift() {
 }
 
 #[test]
+fn result_pure() {
+    let expected1: Result<u32, u32> = Ok(1u32);
+    let expected2: Result<&str, u32> = Ok("str");
+    assert_eq!(expected1, Result::pure(1u32));
+    assert_eq!(expected2, Result::pure("str"));
+}
+
+#[test]
+fn result_lift() {
+    use sugars::boxed;
+    let case1: Result<u32, &str> = Ok(1);
+    let fs: Result<Box<dyn FnMut(_) -> _>, &str> = Ok(boxed!(|x| x+1));
+    let fs2: Result<Box<dyn FnMut(u32) -> u32>, &str> = Err("err");
+
+    assert_eq!(Ok(2), case1.lift(fs));
+    assert_eq!(Err("err"), case1.lift(fs2));
+}
+
+#[test]
 fn vec_pure() {
     assert_eq!(vec![1], Vec::pure(1));
     assert_eq!(vec!["str"], Vec::pure("str"));

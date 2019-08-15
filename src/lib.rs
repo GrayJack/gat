@@ -39,6 +39,7 @@ impl<T: Monoid + Clone> Monoid for Option<T> {
     fn identity_value() -> Self {
         None
     }
+    #[inline]
     fn associate(self, other: &Self) -> Self {
         match (self, other) {
             (None, y) => y.clone(),
@@ -93,10 +94,12 @@ impl<T> Functor for Option<T> {
 }
 
 impl<T> Applicative for Option<T> {
+    #[inline]
     fn pure(s: Self::Type1) -> Self {
         Some(s)
     }
 
+    #[inline]
     fn lift<B, F>(self, fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
     where
         F: FnMut(Self::Type1) -> B
@@ -109,7 +112,7 @@ impl<T> Applicative for Option<T> {
 }
 
 impl<T, E> Bind for Result<T, E> {
-    type Orig = Result<ForAll, E>;
+    type Orig = Result<ForAll, ForAll>;
     type Type1 = T;
     type Type2 = E;
 }
@@ -124,6 +127,24 @@ impl<T, E> Functor for Result<T, E> {
         match self {
             Ok(value) => Ok(f(value)),
             Err(err) => Err(err),
+        }
+    }
+}
+
+impl<T, E> Applicative for Result<T, E> {
+    #[inline]
+    fn pure(value: Self::Type1) -> Self {
+        Ok(value)
+    }
+
+    #[inline]
+    fn lift<B, F>(self, fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    where
+        F: FnMut(Self::Type1) -> B
+    {
+        match fs {
+            Ok(f) => self.fmap(f),
+            Err(e) => Err(e)
         }
     }
 }
