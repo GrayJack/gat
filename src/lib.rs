@@ -146,6 +146,7 @@ impl<T> Functor for Vec<T> {
 }
 
 impl<T: Clone> Applicative for Vec<T> {
+    #[inline]
     fn pure(value: Self::Type1) -> Self {
         vec![value]
     }
@@ -173,5 +174,26 @@ impl<T> Functor for LinkedList<T> {
     #[inline]
     fn fmap<B, F: FnMut(Self::Type1) -> B>(self, f: F) -> <Self as Rebind<B>>::Res {
         self.into_iter().map(f).collect()
+    }
+}
+
+impl<T: Clone> Applicative for LinkedList<T> {
+    #[inline]
+    fn pure(value: Self::Type1) -> Self {
+        use sugars::lkl;
+        lkl![value]
+    }
+
+    fn lift<B, F>(self, fs: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    where
+        F: FnMut(Self::Type1) -> B
+    {
+        let mut lkl = LinkedList::new();
+        for mut f in fs {
+            for x in self.clone() {
+                lkl.push_back(f(x));
+            }
+        }
+        lkl
     }
 }

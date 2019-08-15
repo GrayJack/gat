@@ -1,4 +1,7 @@
+use std::collections::LinkedList;
+
 use gat::*;
+use sugars::lkl;
 
 #[test]
 fn option_pure() {
@@ -28,4 +31,18 @@ fn vec_lift() {
     let vf = vec![f1];
 
     assert_eq!(vec![2, 3], case1.lift(vf));
+}
+
+#[test]
+fn lkl_pure() {
+    assert_eq!(lkl![1], LinkedList::pure(1));
+    assert_eq!(lkl!["str"], LinkedList::pure("str"));
+}
+
+#[test]
+fn lkl_lift() {
+    let case1 = lkl![1, 2];
+    let lklf = lkl![|x| x+1];
+
+    assert_eq!(lkl![2, 3], case1.lift(lklf));
 }
