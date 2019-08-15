@@ -1,14 +1,14 @@
 pub mod functors;
-pub mod hkt;
 pub mod groups;
+pub mod hkt;
 
 pub use crate::{
-    functors::{Functor, Applicative},
-    hkt::{Bind, Rebind, ForAll},
+    functors::{Applicative, Functor},
     groups::Monoid,
+    hkt::{Bind, ForAll, Rebind},
 };
 
-/// Convenience macro to write **almost** idiomatic Rust for `Rebind` for a type
+/// Convenience macro to write **almost** idiomatic Rust to `Rebind` for a type
 #[macro_export]
 macro_rules! rebd {
     ($t1:ty => $t2:ty) => {
@@ -95,7 +95,7 @@ impl<A, B> Rebind<A> for Option<B> {
 impl<T> Functor for Option<T> {
     fn fmap<B, F>(self, mut f: F) -> rebd!(Self => B)
     where
-        F: FnMut(Self::Type1) -> B
+        F: FnMut(Self::Type1) -> B,
     {
         match self {
             Some(value) => Some(f(value)),
@@ -113,7 +113,7 @@ impl<T> Applicative for Option<T> {
     #[inline]
     fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
     where
-        F: FnMut(Self::Type1) -> B
+        F: FnMut(Self::Type1) -> B,
     {
         match fs {
             Some(func) => self.fmap(func),
@@ -136,7 +136,7 @@ impl<T, E> Functor for Result<T, E> {
     #[inline]
     fn fmap<B, F>(self, mut f: F) -> rebd!(Self => B)
     where
-        F: FnMut(Self::Type1) -> B
+        F: FnMut(Self::Type1) -> B,
     {
         match self {
             Ok(value) => Ok(f(value)),
@@ -154,11 +154,11 @@ impl<T, E> Applicative for Result<T, E> {
     #[inline]
     fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
     where
-        F: FnMut(Self::Type1) -> B
+        F: FnMut(Self::Type1) -> B,
     {
         match fs {
             Ok(f) => self.fmap(f),
-            Err(e) => Err(e)
+            Err(e) => Err(e),
         }
     }
 }
@@ -177,7 +177,7 @@ impl<T> Functor for Vec<T> {
     #[inline]
     fn fmap<B, F>(self, f: F) -> rebd!(Self => B)
     where
-        F: FnMut(Self::Type1) -> B
+        F: FnMut(Self::Type1) -> B,
     {
         self.into_iter().map(f).collect()
     }
@@ -191,7 +191,7 @@ impl<T: Clone> Applicative for Vec<T> {
 
     fn lift<B, F>(self, mut fs: rebd!(Self => F)) -> rebd!(Self => B)
     where
-        F: FnMut(Self::Type1) -> B
+        F: FnMut(Self::Type1) -> B,
     {
         use sugars::cvec;
         cvec![f(x); f <- &mut fs, x <- self.clone()]
@@ -212,7 +212,7 @@ impl<T> Functor for LinkedList<T> {
     #[inline]
     fn fmap<B, F>(self, f: F) -> rebd!(Self => B)
     where
-        F: FnMut(Self::Type1) -> B
+        F: FnMut(Self::Type1) -> B,
     {
         self.into_iter().map(f).collect()
     }
@@ -227,7 +227,7 @@ impl<T: Clone> Applicative for LinkedList<T> {
 
     fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
     where
-        F: FnMut(Self::Type1) -> B
+        F: FnMut(Self::Type1) -> B,
     {
         let mut lkl = LinkedList::new();
         for mut f in fs {
