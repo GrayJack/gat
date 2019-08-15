@@ -3,8 +3,8 @@ pub mod hkt;
 pub mod groups;
 
 pub use crate::{
-    functors::Functor,
-    hkt::{Bind, Rebind},
+    functors::{Functor, Applicative},
+    hkt::{Bind, Rebind, ForAll},
     groups::Monoid,
 };
 
@@ -74,6 +74,7 @@ impl<T: Clone> Monoid for LinkedList<T> {
 
 // Functor Applicative and Monad
 impl<T> Bind for Option<T> {
+    type Orig = Option<ForAll>;
     type Type1 = T;
     type Type2 = ();
 }
@@ -83,10 +84,7 @@ impl<A, B> Rebind<A> for Option<B> {
 }
 
 impl<T> Functor for Option<T> {
-    type Item = T;
-
-    #[inline]
-    fn fmap<B, F: FnMut(Self::Item) -> B>(self, mut f: F) -> <Self as Rebind<B>>::Res {
+    fn fmap<B, F: FnMut(Self::Type1) -> B>(self, mut f: F) -> <Self as Rebind<B>>::Res {
         match self {
             Some(value) => Some(f(value)),
             None => None,
@@ -94,7 +92,24 @@ impl<T> Functor for Option<T> {
     }
 }
 
+impl<T> Applicative for Option<T> {
+    fn pure(s: Self::Type1) -> Self {
+        Some(s)
+    }
+
+    fn lift<B, F>(self, f: <Self as Rebind<F>>::Res) -> <Self as Rebind<B>>::Res
+    where
+        F: FnMut(Self::Type1) -> B
+    {
+        match f {
+            Some(func) => self.fmap(func),
+            None => None,
+        }
+    }
+}
+
 impl<T, E> Bind for Result<T, E> {
+    type Orig = Result<ForAll, E>;
     type Type1 = T;
     type Type2 = E;
 }
@@ -104,10 +119,8 @@ impl<T, E, A> Rebind<A> for Result<T, E> {
 }
 
 impl<T, E> Functor for Result<T, E> {
-    type Item = T;
-
     #[inline]
-    fn fmap<B, F: FnMut(Self::Item) -> B>(self, mut f: F) -> <Self as Rebind<B>>::Res {
+    fn fmap<B, F: FnMut(Self::Type1) -> B>(self, mut f: F) -> <Self as Rebind<B>>::Res {
         match self {
             Ok(value) => Ok(f(value)),
             Err(err) => Err(err),
@@ -116,6 +129,7 @@ impl<T, E> Functor for Result<T, E> {
 }
 
 impl<T> Bind for Vec<T> {
+    type Orig = Vec<ForAll>;
     type Type1 = T;
     type Type2 = ();
 }
@@ -125,15 +139,14 @@ impl<A, T> Rebind<A> for Vec<T> {
 }
 
 impl<T> Functor for Vec<T> {
-    type Item = T;
-
     #[inline]
-    fn fmap<B, F: FnMut(Self::Item) -> B>(self, f: F) -> <Self as Rebind<B>>::Res {
+    fn fmap<B, F: FnMut(Self::Type1) -> B>(self, f: F) -> <Self as Rebind<B>>::Res {
         self.into_iter().map(f).collect()
     }
 }
 
 impl<T> Bind for LinkedList<T> {
+    type Orig = LinkedList<ForAll>;
     type Type1 = T;
     type Type2 = ();
 }
@@ -143,10 +156,8 @@ impl<A, T> Rebind<A> for LinkedList<T> {
 }
 
 impl<T> Functor for LinkedList<T> {
-    type Item = T;
-
     #[inline]
-    fn fmap<B, F: FnMut(Self::Item) -> B>(self, f: F) -> <Self as Rebind<B>>::Res {
+    fn fmap<B, F: FnMut(Self::Type1) -> B>(self, f: F) -> <Self as Rebind<B>>::Res {
         self.into_iter().map(f).collect()
     }
 }
