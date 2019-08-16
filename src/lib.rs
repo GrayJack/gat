@@ -3,7 +3,7 @@ pub mod groups;
 pub mod hkt;
 
 pub use crate::{
-    functors::{Applicative, Functor},
+    functors::{Applicative, Functor, Monad},
     groups::Monoid,
     hkt::{Bind, ForAll, Rebind},
 };
@@ -117,6 +117,18 @@ impl<T> Applicative for Option<T> {
     {
         match fs {
             Some(func) => self.fmap(func),
+            None => None,
+        }
+    }
+}
+
+impl<T> Monad for Option<T> {
+    fn bind<B, F>(self, mut f: F) -> rebd!(Self => B)
+    where
+        F: FnMut(Self::Type1) -> rebd!(Self => B)
+    {
+        match self {
+            Some(value) => f(value),
             None => None,
         }
     }

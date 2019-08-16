@@ -21,13 +21,12 @@ pub trait Functor: Bind + Rebind<<Self as Bind>::Type1> {
 /// * Sequence computation and combine their results (`lift`)
 ///
 /// Any definition must satisfy:
-/// 1. Identity: `v.lift(pure(id)) = v` where `id` is the identity function (|x| x)
+/// 1. Identity: `v.lift(pure(id)) = v` where `id` is the identity function (`|x| x`)
 /// 2. Homomorphism: `pure(x).lift(pure(f)) = pure(f(x))`
 /// 3. Composition: `u.lift(v.lift(w.lift(pure(∘))) == v.lift(u.lift(w))` where `∘` is the composition of 2 functions
-/// Interchange: `u.lift(pure(y)) == pure(|| y).lift(u)`
+/// 4. Interchange: `u.lift(pure(y)) == pure(|| y).lift(u)`
 pub trait Applicative: Functor {
-    /// Given a value of a type that the implementator type can hold
-    /// return that implementator type holding it
+    /// Wraps a ordinary `value` into a `Functor` value
     fn pure(value: Self::Type1) -> Self;
 
     /// Lift `self` using a function wrapped in a Functor `fs`
@@ -38,4 +37,16 @@ pub trait Applicative: Functor {
         <Self as Rebind<F>>::Res: Bind<Orig=Self::Orig,Type1=F> +
             Rebind<F>,
         Self::Orig: Rebind<F>;
+}
+
+/// It's a trait for `Applicative` that can binf a wrapped value to a wrapped result
+///
+/// Any definition must satisfy:
+/// 1. `m.bind(pure) == m`
+pub trait Monad: Applicative {
+    /// Bind monadic value to the monadic action
+    fn bind<B, F>(self, f: F) -> rebd!(Self => B)
+    where
+        Self: Rebind<F> + Rebind<B>,
+        F: FnMut(Self::Type1) -> rebd!(Self => B);
 }
