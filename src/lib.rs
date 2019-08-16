@@ -210,6 +210,16 @@ impl<T: Clone> Applicative for Vec<T> {
     }
 }
 
+impl<T: Clone> Monad for Vec<T> {
+    fn bind<B, F>(self, mut f: F) -> rebd!(Self => B)
+    where
+        F: FnMut(Self::Type1) -> rebd!(Self => B)
+    {
+        use sugars::cvec;
+        cvec![y; x <- self.clone(), y <- f(x)]
+    }
+}
+
 impl<T> Bind for LinkedList<T> {
     type Orig = LinkedList<ForAll>;
     type Type1 = T;
@@ -245,6 +255,21 @@ impl<T: Clone> Applicative for LinkedList<T> {
         for mut f in fs {
             for x in self.clone() {
                 lkl.push_back(f(x));
+            }
+        }
+        lkl
+    }
+}
+
+impl<T: Clone> Monad for LinkedList<T> {
+    fn bind<B, F>(self, mut f: F) -> rebd!(Self => B)
+    where
+        F: FnMut(Self::Type1) -> rebd!(Self => B)
+    {
+        let mut lkl = LinkedList::new();
+        for x in self {
+            for value in f(x) {
+                lkl.push_back(value);
             }
         }
         lkl
