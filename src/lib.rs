@@ -175,6 +175,18 @@ impl<T, E> Applicative for Result<T, E> {
     }
 }
 
+impl<T, E> Monad for Result<T, E> {
+    fn bind<B, F>(self, mut f: F) -> rebd!(Self => B)
+    where
+        F: FnMut(Self::Type1) -> rebd!(Self => B)
+    {
+        match self {
+            Ok(value) => f(value),
+            Err(err) => Err(err),
+        }
+    }
+}
+
 impl<T> Bind for Vec<T> {
     type Orig = Vec<ForAll>;
     type Type1 = T;

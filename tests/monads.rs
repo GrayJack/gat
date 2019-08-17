@@ -14,6 +14,18 @@ fn option_bind() {
 }
 
 #[test]
+fn result_bind() {
+    let case1: Result<u32, &str> = Err("str");
+    let case2: Result<u32, &str> = Ok(10);
+    let func = |x| Ok(x+1);
+
+    assert_eq!(Err("str"), case1.bind(Result::pure));
+    assert_eq!(Ok(10), case2.bind(Result::pure));
+    assert_eq!(Err("str"), case1.bind(func));
+    assert_eq!(Ok(11), case2.bind(func));
+}
+
+#[test]
 fn vec_bind() {
     let case1: Vec<u32> = Vec::new();
     let case2 = vec![1, 2, 3];
