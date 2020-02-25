@@ -7,7 +7,7 @@ use crate::{rebd, hkt::{Bind, Rebind}};
 /// 1. `func.fmap(id) == id` where `id = |x| x` (Identity function)
 /// 2. `func.fmap(|x| f(g(x))) == f ∘ g` where `∘` is means the composition
 /// of function `f` with function `g`
-pub trait Functor: Bind + Rebind<<Self as Bind>::Type1> {
+pub trait Functor: Bind + Rebind<<Self as Bind>::Type1> + Sized {
     /// Creates a a new `Functor` of type `B` from a `Functor` of type `Self` using
     /// the results of calling a function `f` on every value in `Functor` of type `Self`
     fn fmap<B, F>(self, f: F) -> rebd!(Self => B)
@@ -26,8 +26,12 @@ pub trait Functor: Bind + Rebind<<Self as Bind>::Type1> {
 /// 3. Composition: `u.lift(v.lift(w.lift(pure(∘))) == v.lift(u.lift(w))` where `∘` is the composition of 2 functions
 /// 4. Interchange: `u.lift(pure(y)) == pure(|| y).lift(u)`
 pub trait Applicative: Functor {
+    const PURE: Self;
+
     /// Wraps a ordinary `value` into a `Functor` value
-    fn pure(value: Self::Type1) -> Self;
+    fn pure(_value: Self::Type1) -> Self {
+        Self::PURE
+    }
 
     /// Lift `self` using a function wrapped in a Functor `fs`
     fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)

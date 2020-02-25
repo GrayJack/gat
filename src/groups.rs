@@ -13,8 +13,12 @@
 /// and `LinkedList`. If they became `const fn` (Vec is already in the process to become),
 /// it will be updated to use associated constant.
 pub trait Monoid: Sized {
+    const IDENTITY: Self;
+
     /// A function that return the identity value/element of the `Monoid`
-    fn identity_value() -> Self;
+    fn identity_value() -> Self {
+        Self::IDENTITY
+    }
 
     /// A `Monoid` method that represents a associative binary operation
     fn associate(self, other: &Self) -> Self;

@@ -1,3 +1,4 @@
+#![feature(const_fn)]
 pub mod functors;
 pub mod groups;
 pub mod hkt;
@@ -21,17 +22,15 @@ use std::{cmp::Ordering, collections::LinkedList};
 
 // Group Monoids
 impl Monoid for () {
-    #[inline]
-    fn identity_value() -> Self {}
+    const IDENTITY: Self = ();
+
     #[inline]
     fn associate(self, _other: &Self) -> Self {}
 }
 
 impl Monoid for Ordering {
-    #[inline]
-    fn identity_value() -> Self {
-        Ordering::Equal
-    }
+    const IDENTITY: Self = Ordering::Equal;
+
     fn associate(self, other: &Self) -> Self {
         use std::cmp::Ordering::*;
         match (self, other) {
@@ -43,10 +42,8 @@ impl Monoid for Ordering {
 }
 
 impl<T: Monoid + Clone> Monoid for Option<T> {
-    #[inline]
-    fn identity_value() -> Self {
-        None
-    }
+    const IDENTITY: Self = None;
+
     #[inline]
     fn associate(self, other: &Self) -> Self {
         match (self, other) {
@@ -58,10 +55,8 @@ impl<T: Monoid + Clone> Monoid for Option<T> {
 }
 
 impl<T: Clone> Monoid for Vec<T> {
-    #[inline]
-    fn identity_value() -> Self {
-        Vec::new()
-    }
+    const IDENTITY: Self = Vec::new();
+
     fn associate(mut self, other: &Self) -> Self {
         let mut o = other.clone();
         self.append(&mut o);
@@ -70,10 +65,8 @@ impl<T: Clone> Monoid for Vec<T> {
 }
 
 impl<T: Clone> Monoid for LinkedList<T> {
-    #[inline]
-    fn identity_value() -> Self {
-        LinkedList::new()
-    }
+    const IDENTITY: Self = LinkedList::new();
+
     fn associate(mut self, other: &Self) -> Self {
         let mut o = other.clone();
         self.append(&mut o);
@@ -104,11 +97,8 @@ impl<T> Functor for Option<T> {
     }
 }
 
-impl<T> Applicative for Option<T> {
-    #[inline]
-    fn pure(s: Self::Type1) -> Self {
-        Some(s)
-    }
+impl<T: Default> Applicative for Option<T> {
+    const PURE: Self = Some(T::default());
 
     #[inline]
     fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
@@ -122,7 +112,7 @@ impl<T> Applicative for Option<T> {
     }
 }
 
-impl<T> Monad for Option<T> {
+impl<T: Default> Monad for Option<T> {
     fn bind<B, F>(self, mut f: F) -> rebd!(Self => B)
     where
         F: FnMut(Self::Type1) -> rebd!(Self => B)
@@ -157,35 +147,32 @@ impl<T, E> Functor for Result<T, E> {
     }
 }
 
-impl<T, E> Applicative for Result<T, E> {
-    #[inline]
-    fn pure(value: Self::Type1) -> Self {
-        Ok(value)
-    }
-
-    #[inline]
-    fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
-    where
-        F: FnMut(Self::Type1) -> B,
-    {
-        match fs {
-            Ok(f) => self.fmap(f),
-            Err(e) => Err(e),
-        }
-    }
-}
-
-impl<T, E> Monad for Result<T, E> {
-    fn bind<B, F>(self, mut f: F) -> rebd!(Self => B)
-    where
-        F: FnMut(Self::Type1) -> rebd!(Self => B)
-    {
-        match self {
-            Ok(value) => f(value),
-            Err(err) => Err(err),
-        }
-    }
-}
+// impl<T, E> Applicative for Result<T, E> {
+//     const PURE: Self = Err();
+//
+//     #[inline]
+//     fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
+//     where
+//         F: FnMut(Self::Type1) -> B,
+//     {
+//         match fs {
+//             Ok(f) => self.fmap(f),
+//             Err(e) => Err(e),
+//         }
+//     }
+// }
+//
+// impl<T: Default, E> Monad for Result<T, E> {
+//     fn bind<B, F>(self, mut f: F) -> rebd!(Self => B)
+//     where
+//         F: FnMut(Self::Type1) -> rebd!(Self => B)
+//     {
+//         match self {
+//             Ok(value) => f(value),
+//             Err(err) => Err(err),
+//         }
+//     }
+// }
 
 impl<T> Bind for Vec<T> {
     type Orig = Vec<ForAll>;
@@ -208,10 +195,7 @@ impl<T> Functor for Vec<T> {
 }
 
 impl<T: Clone> Applicative for Vec<T> {
-    #[inline]
-    fn pure(value: Self::Type1) -> Self {
-        vec![value]
-    }
+    const PURE: Self = Vec::new();
 
     fn lift<B, F>(self, mut fs: rebd!(Self => F)) -> rebd!(Self => B)
     where
@@ -253,11 +237,7 @@ impl<T> Functor for LinkedList<T> {
 }
 
 impl<T: Clone> Applicative for LinkedList<T> {
-    #[inline]
-    fn pure(value: Self::Type1) -> Self {
-        use sugars::lkl;
-        lkl![value]
-    }
+    const PURE: Self = LinkedList::new();
 
     fn lift<B, F>(self, fs: rebd!(Self => F)) -> rebd!(Self => B)
     where

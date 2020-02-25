@@ -6,3 +6,9 @@
 [![Hits-of-Code](https://hitsofcode.com/github/GrayJack/gat)](https://hitsofcode.com/view/github/GrayJack/gat)
 
 Rust General Associated Types emulation together with functional style traits like `Functor`, `Applicative`, `Bifunctor`, `Monoid`, `Monad`.
+
+## Why tho?
+Because learning, because I can, also, why not?
+
+
+### Require nightly compiler
